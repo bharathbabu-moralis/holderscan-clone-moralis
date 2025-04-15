@@ -263,7 +263,7 @@ const getTrendingTokens = async (req, res) => {
   try {
     const { chain } = req.query;
 
-    let params = { limit: 15 };
+    let params = {};
     if (chain) {
       params.chain = chain;
     }

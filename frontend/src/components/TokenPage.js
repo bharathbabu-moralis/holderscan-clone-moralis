@@ -2,54 +2,13 @@ import React, { useEffect, useState, useRef } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { PriceChartWidget } from "./PriceChartWidget";
-
-// Utility functions for localStorage handling - copied from Dashboard
-const storageAvailable = (type) => {
-  try {
-    const storage = window[type];
-    const x = "__storage_test__";
-    storage.setItem(x, x);
-    storage.removeItem(x);
-    return true;
-  } catch (e) {
-    return false;
-  }
-};
-
-const saveToStorage = (key, value) => {
-  if (!storageAvailable("localStorage")) {
-    console.warn("localStorage not available");
-    return false;
-  }
-
-  try {
-    const serializedValue = JSON.stringify(value);
-    localStorage.setItem(key, serializedValue);
-    return true;
-  } catch (error) {
-    console.error("Error saving to localStorage:", error);
-    return false;
-  }
-};
-
-const loadFromStorage = (key, defaultValue) => {
-  if (!storageAvailable("localStorage")) {
-    console.warn("localStorage not available");
-    return defaultValue;
-  }
-
-  try {
-    const serializedValue = localStorage.getItem(key);
-    if (serializedValue === null) {
-      return defaultValue;
-    }
-    const parsedValue = JSON.parse(serializedValue);
-    return parsedValue;
-  } catch (error) {
-    console.error("Error loading from localStorage:", error);
-    return defaultValue;
-  }
-};
+import {
+  saveToStorage,
+  loadFromStorage,
+  STORAGE_KEYS,
+} from "../utils/localStorage";
+import TrendingTokensScroller from "./TrendingTokensScroller";
+import { getChainLogo } from "../utils/chainUtils";
 
 const TokenPage = () => {
   const { chain, address } = useParams();
@@ -66,8 +25,8 @@ const TokenPage = () => {
   const [error, setError] = useState(null);
   const [isFavorite, setIsFavorite] = useState(false);
 
-  // Use the same storage key as Dashboard
-  const STORAGE_KEY = "holderscan_tokens";
+  // Use constant from localStorage utility
+  const STORAGE_KEY = STORAGE_KEYS.TOKENS;
 
   const searchTimeoutRef = useRef(null);
   const searchInputRef = useRef(null);
@@ -582,183 +541,127 @@ const TokenPage = () => {
   return (
     <div className="min-h-screen bg-primary text-white">
       <div className="container mx-auto p-4">
-        {/* Search and Trending in same row */}
-        <div className="flex items-center mb-6 gap-3">
-          {/* Search Bar - ENLARGED */}
-          <div className="relative w-96 flex-shrink-0 z-50">
-            <input
-              ref={searchInputRef}
-              type="text"
-              placeholder="Search: TCKR, 0x000101010101"
-              value={searchQuery}
-              onChange={handleSearchInputChange}
-              onFocus={handleSearchFocus}
-              className="w-full p-3 rounded-lg bg-gray-800 border border-gray-700 text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
-            />
+        {/* Top search section with trending tokens */}
+        <div className="mb-8 flex items-center">
+          {/* Search Input */}
+          <div className="relative mr-4">
+            <div className="relative w-96 flex-shrink-0 z-50">
+              <input
+                ref={searchInputRef}
+                type="text"
+                placeholder="Search: TCKR, 0x000101010101"
+                value={searchQuery}
+                onChange={handleSearchInputChange}
+                onFocus={handleSearchFocus}
+                className="w-full p-3 rounded-lg bg-gray-800 border border-gray-700 text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+              />
 
-            {/* Search icon or loading spinner */}
-            <div className="absolute right-3 top-3.5 text-gray-400">
-              {searchLoading ? (
-                <svg
-                  className="animate-spin h-4 w-4"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  ></circle>
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  ></path>
-                </svg>
-              ) : (
-                <svg
-                  className="h-4 w-4"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                  />
-                </svg>
-              )}
-            </div>
-
-            {/* Search Results - FIXED VISIBILITY */}
-            {searchResults.length > 0 && showSearchResults && (
-              <div
-                ref={searchResultsRef}
-                className="absolute mt-2 w-full bg-gray-800 rounded-lg shadow-xl max-h-96 overflow-y-auto border border-gray-700"
-                style={{ zIndex: 100 }}
-              >
-                {searchResults.map((token) => (
-                  <div
-                    key={`${token.chainId}-${token.tokenAddress}`}
-                    className="flex items-center p-3 hover:bg-gray-700 cursor-pointer border-b border-gray-700 last:border-0"
-                    onClick={() => handleTokenSelect(token)}
+              {/* Search icon or loading spinner */}
+              <div className="absolute right-3 top-3.5 text-gray-400">
+                {searchLoading ? (
+                  <svg
+                    className="animate-spin h-4 w-4"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
                   >
-                    {/* Chain Logo */}
-                    <img
-                      src={getChainLogo(token.chainId)}
-                      alt={token.chainId || "chain"}
-                      className="w-5 h-5 rounded-full mr-2"
-                      onError={(e) => {
-                        e.target.src = "/assets/chains/ethereum.svg";
-                      }}
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                ) : (
+                  <svg
+                    className="h-4 w-4"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
                     />
+                  </svg>
+                )}
+              </div>
 
-                    {/* Token Logo */}
-                    {token.logo ? (
+              {/* Search Results Dropdown */}
+              {showSearchResults && searchResults.length > 0 && (
+                <div
+                  ref={searchResultsRef}
+                  className="absolute mt-2 w-full bg-gray-800 rounded-lg shadow-xl max-h-96 overflow-y-auto border border-gray-700"
+                  style={{ zIndex: 100 }}
+                >
+                  {searchResults.map((token) => (
+                    <div
+                      key={`${token.chainId}-${token.tokenAddress}`}
+                      className="flex items-center p-3 hover:bg-gray-700 cursor-pointer border-b border-gray-700 last:border-0"
+                      onClick={() => handleTokenSelect(token)}
+                    >
+                      {/* Chain Logo */}
                       <img
-                        src={token.logo}
-                        alt={token.name}
-                        className="w-8 h-8 rounded-full bg-gray-700 mr-3"
+                        src={getChainLogo(token.chainId)}
+                        alt={token.chainId || "chain"}
+                        className="w-5 h-5 rounded-full mr-2"
                         onError={(e) => {
-                          e.target.src = `https://via.placeholder.com/32/2d3748/FFFFFF?text=${token.symbol?.charAt(
-                            0
-                          )}`;
+                          e.target.src = "/assets/chains/ethereum.svg";
                         }}
                       />
-                    ) : (
-                      <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center mr-3">
-                        <span className="text-xs">
-                          {token.symbol?.charAt(0)}
-                        </span>
-                      </div>
-                    )}
 
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center">
-                        <h3 className="font-medium text-sm truncate">
-                          {token.name}
-                        </h3>
-                        <span className="ml-2 text-xs text-gray-400 bg-gray-700 px-1.5 py-0.5 rounded">
-                          {token.symbol}
-                        </span>
+                      {/* Token Logo */}
+                      {token.logo ? (
+                        <img
+                          src={token.logo}
+                          alt={token.name}
+                          className="w-8 h-8 rounded-full bg-gray-700 mr-3"
+                          onError={(e) => {
+                            e.target.src = `https://via.placeholder.com/32/2d3748/FFFFFF?text=${token.symbol?.charAt(
+                              0
+                            )}`;
+                          }}
+                        />
+                      ) : (
+                        <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center mr-3">
+                          <span className="text-xs">
+                            {token.symbol?.charAt(0)}
+                          </span>
+                        </div>
+                      )}
+
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center">
+                          <h3 className="font-medium text-sm truncate">
+                            {token.name}
+                          </h3>
+                          <span className="ml-2 text-xs text-gray-400 bg-gray-700 px-1.5 py-0.5 rounded">
+                            {token.symbol}
+                          </span>
+                        </div>
+                        <p className="text-xs text-gray-400 truncate">
+                          {truncateAddress(token.tokenAddress)}
+                        </p>
                       </div>
-                      <p className="text-xs text-gray-400 truncate">
-                        {truncateAddress(token.tokenAddress)}
-                      </p>
                     </div>
-                  </div>
-                ))}
-              </div>
-            )}
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Trending Tokens - Auto-scrolling bar with HIDDEN SCROLLBAR */}
-          {trendingTokens.length > 0 && (
-            <div className="flex-1 overflow-hidden">
-              <div
-                ref={trendingContainerRef}
-                className="flex space-x-2 overflow-x-auto scrollbar-hide"
-                style={{
-                  scrollBehavior: "smooth",
-                  msOverflowStyle: "none" /* IE and Edge */,
-                  scrollbarWidth: "none" /* Firefox */,
-                  WebkitOverflowScrolling: "touch",
-                }}
-              >
-                <div className="text-xs text-gray-400 flex items-center px-2 flex-shrink-0">
-                  Hot Tokens:
-                </div>
-                {trendingTokens.map((token) => (
-                  <div
-                    key={`${token.chainId}-${token.tokenAddress}`}
-                    onClick={() =>
-                      navigate(`/token/${token.chainId}/${token.tokenAddress}`)
-                    }
-                    className="flex items-center bg-gray-800/50 hover:bg-gray-700/50 rounded-full px-2 py-1 cursor-pointer flex-shrink-0"
-                  >
-                    {/* Token Logo */}
-                    {token.logo ? (
-                      <img
-                        src={token.logo}
-                        alt={token.symbol}
-                        className="w-5 h-5 rounded-full mr-1"
-                        onError={(e) => {
-                          e.target.src = `https://via.placeholder.com/20/2d3748/FFFFFF?text=${token.symbol?.charAt(
-                            0
-                          )}`;
-                        }}
-                      />
-                    ) : (
-                      <div className="w-5 h-5 rounded-full bg-gray-700 flex items-center justify-center mr-1">
-                        <span className="text-xs">
-                          {token.symbol?.charAt(0)}
-                        </span>
-                      </div>
-                    )}
-
-                    {/* Token Symbol */}
-                    <span className="text-xs font-medium mr-1">
-                      {token.symbol}
-                    </span>
-
-                    {/* Chain Logo */}
-                    <img
-                      src={getChainLogo(token.chainId)}
-                      alt={token.chainId}
-                      className="w-3.5 h-3.5"
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+          <TrendingTokensScroller className="flex-1" />
         </div>
 
         <div className="flex flex-wrap">
