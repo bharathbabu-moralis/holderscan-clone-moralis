@@ -1,12 +1,11 @@
-// routes.js
 const express = require("express");
 const controllers = require("./controllers");
 const router = express.Router();
 
-// Search routes
+// Search route
 router.get("/search", controllers.searchTokens);
 
-// Holder statistics routes
+// Holder statistics route
 router.get("/holders/:chain/:address", controllers.getTokenHolderStats);
 
 // Historical holder data for charts
@@ -15,8 +14,10 @@ router.get(
   controllers.getTokenHolderHistory
 );
 
-// Token metadata routes
+// EVM token metadata routes
 router.get("/token/evm/metadata", controllers.getEVMTokenMetadata);
+
+// Solana token metadata route
 router.get(
   "/token/solana/:tokenAddress/metadata",
   controllers.getSolanaTokenMetadata
@@ -25,10 +26,8 @@ router.get(
 // Trending tokens route
 router.get("/trending-tokens", controllers.getTrendingTokens);
 
+// Trending holder changes route
 router.get("/trends", controllers.getTrendingHolderChanges);
-
-// routes.js - Add this route
-router.get("/token/:chain/:address", controllers.getTokenDetails);
 
 // Token owners route
 router.get("/token/:chain/:address/owners", controllers.getTokenOwners);

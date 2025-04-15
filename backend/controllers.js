@@ -410,82 +410,6 @@ const getSolanaTokenMetadata = async (req, res) => {
   }
 };
 
-// controllers.js - Add this function
-const getTokenDetails = async (req, res) => {
-  try {
-    const { chain, address } = req.params;
-
-    // Parallel API calls to get all required data
-    const [metadataResponse, holderStatsResponse, historicalHolderResponse] =
-      await Promise.all([
-        // Get token metadata
-        chain === "solana"
-          ? axios.get(`${SOLANA_BASE_URL}/token/mainnet/${address}/metadata`, {
-              headers,
-            })
-          : axios.get(`${EVM_BASE_URL}/erc20/metadata`, {
-              params: { chain, addresses: [address] },
-              headers,
-            }),
-
-        // Get holder statistics
-        chain === "solana"
-          ? axios.get(`${SOLANA_BASE_URL}/token/mainnet/holders/${address}`, {
-              headers,
-            })
-          : axios.get(`${EVM_BASE_URL}/erc20/${address}/holders`, {
-              params: { chain },
-              headers,
-            }),
-
-        // Get historical holder data for trends
-        chain === "solana"
-          ? axios.get(
-              `${SOLANA_BASE_URL}/token/mainnet/holders/${address}/historical`,
-              {
-                params: {
-                  fromDate: new Date(
-                    Date.now() - 30 * 24 * 60 * 60 * 1000
-                  ).toISOString(),
-                  toDate: new Date().toISOString(),
-                  timeFrame: "1d",
-                },
-                headers,
-              }
-            )
-          : axios.get(`${EVM_BASE_URL}/erc20/${address}/holders/historical`, {
-              params: {
-                chain,
-                fromDate: new Date(
-                  Date.now() - 30 * 24 * 60 * 60 * 1000
-                ).toISOString(),
-                toDate: new Date().toISOString(),
-                timeFrame: "1d",
-              },
-              headers,
-            }),
-      ]);
-
-    // Process metadata based on chain
-    const metadata =
-      chain === "solana" ? metadataResponse.data : metadataResponse.data[0];
-
-    // Format response
-    res.json({
-      metadata,
-      holderStats: holderStatsResponse.data,
-      historicalHolderData: historicalHolderResponse.data,
-    });
-  } catch (error) {
-    console.error("Error getting token details:", error.message);
-    res.status(500).json({
-      success: false,
-      message: "Failed to get token details",
-      error: error.message,
-    });
-  }
-};
-
 /**
  * Get owners of an ERC20 token
  */
@@ -550,6 +474,5 @@ module.exports = {
   getTrendingTokens,
   getEVMTokenMetadata,
   getSolanaTokenMetadata,
-  getTokenDetails,
   getTokenOwners,
 };
