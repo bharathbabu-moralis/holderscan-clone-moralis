@@ -50,7 +50,7 @@ const TokenCard = ({ token, onRemove }) => {
           }`
         );
         setHolderStats(response.data);
-        fetchHolderHistory(timeframe);
+        setLoading(false);
       } catch (err) {
         console.error("Error fetching holder stats:", err);
         setError("Failed to load holder statistics");
@@ -103,9 +103,10 @@ const TokenCard = ({ token, onRemove }) => {
   // Update chart when timeframe changes
   useEffect(() => {
     if (holderStats) {
+      setLoading(true);
       fetchHolderHistory(timeframe);
     }
-  }, [timeframe, chartType]);
+  }, [timeframe, chartType, holderStats]);
 
   // Create chart with historical data
   const createChart = (historyData, selectedTimeframe) => {
