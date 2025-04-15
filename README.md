@@ -2,7 +2,7 @@
 
 A comprehensive dashboard for tracking token holder data across multiple blockchains, providing insights into holder trends, distributions, and market dynamics.
 
-![HolderScan Clone](https://example.com/screenshot.png)
+![HolderScan Clone](https://github.com/bharathbabu-moralis/holderscan-clone-moralis/blob/main/screenshots/dashboard.png)
 
 ## Overview
 
@@ -66,7 +66,7 @@ This application provides detailed analytics on token holders across Ethereum, S
 1. Clone the repository
 
    ```
-   git clone https://github.com/yourusername/holderscan-clone.git
+   git clone https://github.com/bharathbabu-moralis/holderscan-clone-moralis.git
    cd holderscan-clone
    ```
 
