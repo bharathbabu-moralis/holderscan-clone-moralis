@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { Chart, registerables } from "chart.js";
 import axios from "axios";
 import { Link } from "react-router-dom";
+import { getChainLogo } from "../utils/chainUtils";
 
 Chart.register(...registerables);
 
@@ -35,87 +36,6 @@ const TokenCard = ({ token, onRemove }) => {
     navigator.clipboard.writeText(token.tokenAddress);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-  };
-
-  // Get chain logo path
-  const getChainLogo = () => {
-    // First, normalize the chainId to lowercase string
-    const chainId = (token.chainId || "").toString().toLowerCase();
-
-    // Comprehensive mapping including numeric IDs (as strings) and chain names
-    const chainMapping = {
-      // Ethereum
-      eth: "/assets/chains/ethereum.svg",
-      ethereum: "/assets/chains/ethereum.svg",
-      "0x1": "/assets/chains/ethereum.svg",
-      1: "/assets/chains/ethereum.svg",
-
-      // Binance Smart Chain
-      bsc: "/assets/chains/binance.svg",
-      binance: "/assets/chains/binance.svg",
-      "0x38": "/assets/chains/binance.svg",
-      56: "/assets/chains/binance.svg",
-
-      // Polygon
-      polygon: "/assets/chains/polygon.svg",
-      matic: "/assets/chains/polygon.svg",
-      "0x89": "/assets/chains/polygon.svg",
-      137: "/assets/chains/polygon.svg",
-
-      // Solana
-      solana: "/assets/chains/solana.svg",
-
-      // Avalanche
-      avalanche: "/assets/chains/avalanche.svg",
-      avax: "/assets/chains/avalanche.svg",
-      "0xa86a": "/assets/chains/avalanche.svg",
-      43114: "/assets/chains/avalanche.svg",
-
-      // Fantom
-      fantom: "/assets/chains/fantom.svg",
-      ftm: "/assets/chains/fantom.svg",
-      "0xfa": "/assets/chains/fantom.svg",
-      250: "/assets/chains/fantom.svg",
-
-      // Arbitrum
-      arbitrum: "/assets/chains/arbitrum.svg",
-      "0xa4b1": "/assets/chains/arbitrum.svg",
-      42161: "/assets/chains/arbitrum.svg",
-
-      // Optimism
-      optimism: "/assets/chains/optimism.svg",
-      "0xa": "/assets/chains/optimism.svg",
-      10: "/assets/chains/optimism.svg",
-
-      // Base
-      base: "/assets/chains/base.svg",
-      "0x2105": "/assets/chains/base.svg",
-      8453: "/assets/chains/base.svg",
-
-      // Linea
-      linea: "/assets/chains/linea.svg",
-      "0xe708": "/assets/chains/linea.svg",
-
-      // Pulse
-      pulse: "/assets/chains/pulse.svg",
-      "0x171": "/assets/chains/pulse.svg",
-
-      // Ronin
-      ronin: "/assets/chains/ronin.svg",
-      "0x7e4": "/assets/chains/ronin.svg",
-    };
-
-    // Check if we have a direct match
-    if (chainMapping[chainId]) {
-      return chainMapping[chainId];
-    }
-
-    // Additional logging to help debug issues
-    console.log("Chain ID not found in mapping:", chainId);
-    console.log("Token data:", token);
-
-    // Default fallback
-    return "/assets/chains/ethereum.svg";
   };
 
   // Fetch holder statistics
@@ -354,22 +274,6 @@ const TokenCard = ({ token, onRemove }) => {
     });
   };
 
-  // Format the holder change with color and sign
-  const formatHolderChange = (change, percent) => {
-    if (change === undefined || change === null) return null;
-
-    const isPositive = change >= 0;
-    const color = isPositive ? "text-green-500" : "text-red-500";
-    const sign = isPositive ? "+" : "";
-
-    return (
-      <span className={color}>
-        {sign}
-        {change}/{percent}%
-      </span>
-    );
-  };
-
   // Get available timeframes based on API response
   const getAvailableTimeframes = () => {
     if (!holderStats || !holderStats.holderChange) return [];
@@ -445,7 +349,7 @@ const TokenCard = ({ token, onRemove }) => {
         <div className="flex items-center space-x-3">
           {/* Chain Logo */}
           <img
-            src={getChainLogo()}
+            src={getChainLogo(token.chainId)}
             alt={token.chainId || "eth"}
             className="w-8 h-8"
           />

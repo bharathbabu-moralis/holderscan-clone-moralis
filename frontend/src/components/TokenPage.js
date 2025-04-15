@@ -9,6 +9,12 @@ import {
 } from "../utils/localStorage";
 import TrendingTokensScroller from "./TrendingTokensScroller";
 import { getChainLogo } from "../utils/chainUtils";
+import {
+  truncateAddress,
+  formatNumber,
+  formatPercent,
+  formatChange,
+} from "../utils/formatUtils";
 
 const TokenPage = () => {
   const { chain, address } = useParams();
@@ -31,51 +37,6 @@ const TokenPage = () => {
   const searchTimeoutRef = useRef(null);
   const searchInputRef = useRef(null);
   const searchResultsRef = useRef(null);
-  const trendingContainerRef = useRef(null);
-
-  // Auto-scroll effect for trending tokens
-  useEffect(() => {
-    if (trendingContainerRef.current && trendingTokens.length > 0) {
-      const container = trendingContainerRef.current;
-
-      // Set initial scroll position
-      container.scrollLeft = 0;
-
-      // Function to scroll
-      const scroll = () => {
-        // Get container width and total scroll width
-        const containerWidth = container.clientWidth;
-        const scrollWidth = container.scrollWidth;
-
-        // Calculate scroll increment (small enough for smooth scrolling)
-        const scrollIncrement = 1;
-
-        // Calculate scroll duration
-        const scrollDuration = 20; // ms between scroll steps
-
-        // Scroll function that will be called repeatedly
-        const startScrolling = () => {
-          // If we've reached the end, reset to beginning
-          if (container.scrollLeft >= scrollWidth - containerWidth) {
-            container.scrollLeft = 0;
-          } else {
-            container.scrollLeft += scrollIncrement;
-          }
-        };
-
-        // Set interval for continuous scrolling
-        const intervalId = setInterval(startScrolling, scrollDuration);
-
-        // Return cleanup function
-        return () => clearInterval(intervalId);
-      };
-
-      // Start scrolling after a delay to let the component render properly
-      const timerId = setTimeout(scroll, 1000);
-
-      return () => clearTimeout(timerId);
-    }
-  }, [trendingTokens]);
 
   // Click outside handler for search results
   useEffect(() => {
@@ -283,141 +244,6 @@ const TokenPage = () => {
       fetchHolders();
     }
   }, [loading, tokenData, chain, address]);
-
-  // Helper to render chain logo
-  const getChainLogo = (chainId) => {
-    // Normalize the chainId to lowercase string
-    const normalizedChainId = (chainId || "").toString().toLowerCase();
-
-    // Mapping of chain IDs to logo paths (same mapping used elsewhere)
-    const chainMapping = {
-      // Ethereum
-      eth: "/assets/chains/ethereum.svg",
-      ethereum: "/assets/chains/ethereum.svg",
-      "0x1": "/assets/chains/ethereum.svg",
-      1: "/assets/chains/ethereum.svg",
-
-      // Binance Smart Chain
-      bsc: "/assets/chains/binance.svg",
-      binance: "/assets/chains/binance.svg",
-      "0x38": "/assets/chains/binance.svg",
-      56: "/assets/chains/binance.svg",
-
-      // Polygon
-      polygon: "/assets/chains/polygon.svg",
-      matic: "/assets/chains/polygon.svg",
-      "0x89": "/assets/chains/polygon.svg",
-      137: "/assets/chains/polygon.svg",
-
-      // Solana
-      solana: "/assets/chains/solana.svg",
-
-      // Avalanche
-      avalanche: "/assets/chains/avalanche.svg",
-      avax: "/assets/chains/avalanche.svg",
-      "0xa86a": "/assets/chains/avalanche.svg",
-      43114: "/assets/chains/avalanche.svg",
-
-      // Fantom
-      fantom: "/assets/chains/fantom.svg",
-      ftm: "/assets/chains/fantom.svg",
-      "0xfa": "/assets/chains/fantom.svg",
-      250: "/assets/chains/fantom.svg",
-
-      // Arbitrum
-      arbitrum: "/assets/chains/arbitrum.svg",
-      "0xa4b1": "/assets/chains/arbitrum.svg",
-      42161: "/assets/chains/arbitrum.svg",
-
-      // Optimism
-      optimism: "/assets/chains/optimism.svg",
-      "0xa": "/assets/chains/optimism.svg",
-      10: "/assets/chains/optimism.svg",
-
-      // Base
-      base: "/assets/chains/base.svg",
-      "0x2105": "/assets/chains/base.svg",
-      8453: "/assets/chains/base.svg",
-
-      // Linea
-      linea: "/assets/chains/linea.svg",
-      "0xe708": "/assets/chains/linea.svg",
-
-      // Pulse
-      pulse: "/assets/chains/pulse.svg",
-      "0x171": "/assets/chains/pulse.svg",
-
-      // Ronin
-      ronin: "/assets/chains/ronin.svg",
-      "0x7e4": "/assets/chains/ronin.svg",
-    };
-
-    return chainMapping[normalizedChainId] || "/assets/chains/ethereum.svg";
-  };
-
-  const truncateAddress = (address) => {
-    if (!address) return "";
-    return `${address.slice(0, 6)}...${address.slice(-4)}`;
-  };
-
-  // Format numbers with commas and optional decimal places
-  const formatNumber = (number, decimals = 0) => {
-    if (number === undefined || number === null) return "N/A";
-    return parseFloat(number).toLocaleString(undefined, {
-      minimumFractionDigits: decimals,
-      maximumFractionDigits: decimals,
-    });
-  };
-
-  // Format percentages
-  const formatPercent = (number) => {
-    if (number === undefined || number === null) return "N/A";
-    return `${parseFloat(number).toFixed(2)}%`;
-  };
-
-  // Determine text color based on positive/negative value
-  const getChangeColor = (value) => {
-    if (!value && value !== 0) return "text-gray-400";
-    return value > 0
-      ? "text-green-500"
-      : value < 0
-      ? "text-red-500"
-      : "text-gray-400";
-  };
-
-  // Format change value with sign and color
-  const formatChange = (change, percent) => {
-    if (change === undefined || percent === undefined) return "N/A";
-    const sign = change > 0 ? "+" : "";
-    return (
-      <span className={getChangeColor(change)}>
-        {sign}
-        {formatNumber(change)} ({sign}
-        {formatPercent(percent * 100)})
-      </span>
-    );
-  };
-
-  const handleTrendingTokenClick = (token) => {
-    navigate(`/token/${token.chainId}/${token.tokenAddress}`);
-  };
-
-  // Format percentage changes with colors
-  const formatPercentChange = (change) => {
-    if (change === undefined || change === null) return null;
-
-    const isPositive = change > 0;
-    return (
-      <span
-        className={`text-xs font-medium ${
-          isPositive ? "text-green-500" : "text-red-500"
-        }`}
-      >
-        {isPositive ? "+" : ""}
-        {change.toFixed(2)}%
-      </span>
-    );
-  };
 
   // Toggle favorite status
   const toggleFavorite = () => {
@@ -859,7 +685,6 @@ const TokenPage = () => {
               </div>
             )}
 
-            {/* Combined Token Details Section - REMOVED CATEGORIES & ACQUISITION DATA */}
             <div className="mb-4">
               <h2 className="text-sm font-bold mb-2">
                 <span className="border-b border-gray-700 pb-1">
