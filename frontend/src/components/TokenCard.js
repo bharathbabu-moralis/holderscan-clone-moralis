@@ -3,6 +3,7 @@ import { Chart, registerables } from "chart.js";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import { getChainLogo } from "../utils/chainUtils";
+import API_BASE_URL from "../utils/apiConfig";
 
 Chart.register(...registerables);
 
@@ -44,7 +45,7 @@ const TokenCard = ({ token, onRemove }) => {
       try {
         setLoading(true);
         const response = await axios.get(
-          `http://localhost:9000/api/holders/${token.chainId || "eth"}/${
+          `${API_BASE_URL}/api/holders/${token.chainId || "eth"}/${
             token.tokenAddress
           }`
         );
@@ -74,7 +75,7 @@ const TokenCard = ({ token, onRemove }) => {
       fromDate = new Date(today.getTime() - BAR_COUNT * intervalMs);
 
       const response = await axios.get(
-        `http://localhost:9000/api/holders/${token.chainId || "eth"}/${
+        `${API_BASE_URL}/api/holders/${token.chainId || "eth"}/${
           token.tokenAddress
         }/historical`,
         {

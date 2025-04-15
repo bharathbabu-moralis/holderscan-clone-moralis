@@ -15,6 +15,8 @@ import {
   formatPercent,
   formatChange,
 } from "../utils/formatUtils";
+import API_BASE_URL from "../utils/apiConfig";
+import { getApiUrl } from "../utils/apiConfig";
 
 const TokenPage = () => {
   const { chain, address } = useParams();
@@ -76,7 +78,7 @@ const TokenPage = () => {
 
         if (chain === "solana") {
           const response = await axios.get(
-            `http://localhost:9000/api/token/solana/${address}/metadata`
+            `${API_BASE_URL}/api/token/solana/${address}/metadata`
           );
           // Extract the data from the nested structure
           tokenMetadata = response.data.success
@@ -85,7 +87,7 @@ const TokenPage = () => {
           console.log("Solana token metadata:", tokenMetadata);
         } else {
           const response = await axios.get(
-            `http://localhost:9000/api/token/evm/metadata`,
+            `${API_BASE_URL}/api/token/evm/metadata`,
             {
               params: { chain, address },
             }
@@ -106,7 +108,7 @@ const TokenPage = () => {
 
         // Fetch holder stats for the token
         const holderStatsResponse = await axios.get(
-          `http://localhost:9000/api/holders/${chain}/${address}`
+          `${API_BASE_URL}/api/holders/${chain}/${address}`
         );
 
         const holderStats = holderStatsResponse.data.success
@@ -138,9 +140,7 @@ const TokenPage = () => {
   useEffect(() => {
     const fetchTrendingTokens = async () => {
       try {
-        const response = await axios.get(
-          "http://localhost:9000/api/trending-tokens"
-        );
+        const response = await axios.get(getApiUrl("api/trending-tokens"));
 
         const trendingData = response.data.success
           ? response.data.data
@@ -168,7 +168,7 @@ const TokenPage = () => {
       console.log("Searching for:", query);
 
       const response = await axios.get(
-        `http://localhost:9000/api/search?query=${encodeURIComponent(query)}`
+        `${API_BASE_URL}/api/search?query=${encodeURIComponent(query)}`
       );
 
       console.log("Search response:", response.data);
@@ -224,7 +224,7 @@ const TokenPage = () => {
         try {
           setHoldersLoading(true);
           const response = await axios.get(
-            `http://localhost:9000/api/token/${chain}/${address}/owners`
+            `${API_BASE_URL}/api/token/${chain}/${address}/owners`
           );
 
           const holderData = response.data.success

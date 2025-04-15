@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
+import API_BASE_URL from "../utils/apiConfig";
 
 const SearchBar = ({ onAddToken }) => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -133,7 +134,7 @@ const SearchBar = ({ onAddToken }) => {
       setIsSearching(true);
 
       const response = await axios.get(
-        `http://localhost:9000/api/search?query=${encodeURIComponent(query)}`
+        `${API_BASE_URL}/api/search?query=${encodeURIComponent(query)}`
       );
 
       setSearchResults(response.data.result || []);

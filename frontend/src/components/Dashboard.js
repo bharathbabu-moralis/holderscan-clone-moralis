@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import TokenCard from "./TokenCard";
 import AddTokenModal from "./AddTokenModal";
 import SearchBar from "./SearchBar";
@@ -9,12 +8,10 @@ import {
   loadFromStorage,
   STORAGE_KEYS,
 } from "../utils/localStorage";
-import { getChainLogo } from "../utils/chainUtils";
 
 const Dashboard = () => {
   // Use constant from localStorage utility
   const STORAGE_KEY = STORAGE_KEYS.TOKENS;
-  const navigate = useNavigate();
 
   // Initialize state from localStorage or empty array
   const [tokens, setTokens] = useState(() => {

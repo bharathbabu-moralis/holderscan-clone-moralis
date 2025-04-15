@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { getChainLogo } from "../utils/chainUtils";
+import { getApiUrl } from "../utils/apiConfig";
 
 const TrendingTokensScroller = ({ className = "" }) => {
   const [trendingTokens, setTrendingTokens] = useState([]);
@@ -12,9 +13,7 @@ const TrendingTokensScroller = ({ className = "" }) => {
   useEffect(() => {
     const fetchTrendingTokens = async () => {
       try {
-        const response = await axios.get(
-          "http://localhost:9000/api/trending-tokens"
-        );
+        const response = await axios.get(getApiUrl("api/trending-tokens"));
 
         const trendingData = response.data.success
           ? response.data.data

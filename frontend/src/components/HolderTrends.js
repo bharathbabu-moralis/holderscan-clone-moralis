@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
+import { getApiUrl } from "../utils/apiConfig";
 
 const HolderTrends = () => {
   const [holderTrends, setHolderTrends] = useState({ gainers: [], losers: [] });
@@ -12,7 +13,7 @@ const HolderTrends = () => {
     const fetchHolderTrends = async () => {
       try {
         setLoading(true);
-        const response = await axios.get("http://localhost:9000/api/trends");
+        const response = await axios.get(getApiUrl("api/trends"));
         setHolderTrends(response.data);
         setLoading(false);
       } catch (err) {

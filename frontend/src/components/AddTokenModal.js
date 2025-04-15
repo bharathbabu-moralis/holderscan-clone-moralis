@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
+import API_BASE_URL from "../utils/apiConfig";
 
 const AddTokenModal = ({ isOpen, onClose, onAddToken }) => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -159,7 +160,7 @@ const AddTokenModal = ({ isOpen, onClose, onAddToken }) => {
       setError(null);
 
       const response = await axios.get(
-        `http://localhost:9000/api/search?query=${encodeURIComponent(query)}`
+        `${API_BASE_URL}/api/search?query=${encodeURIComponent(query)}`
       );
 
       console.log("Search results:", response.data);
