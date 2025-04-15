@@ -106,7 +106,7 @@ This application provides detailed analytics on token holders across Ethereum, S
 
 3. Open [http://localhost:3000](http://localhost:3000) in your browser
 
-## API Endpoints
+## API Endpoints on HolderAnalytics Backend (Express Server that calls Moralis APIs)
 
 ### Token Search and Data
 
