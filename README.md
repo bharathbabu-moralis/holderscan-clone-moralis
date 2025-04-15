@@ -172,15 +172,6 @@ holderscan-clone-moralis/
 
 This project showcases how to integrate Moralis APIs to build a comprehensive token analytics platform. It leverages Moralis' robust infrastructure to provide real-time blockchain data across multiple networks.
 
-## Future Enhancements
-
-- User authentication and saved token watchlists
-- Portfolio tracking and analytics
-- Wallet profiling and holder behavior analysis
-- Advanced filtering options for token discovery
-- Additional chart types and visualization options
-- Mobile-responsive design improvements
-
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
