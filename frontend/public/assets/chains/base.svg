@@ -1,0 +1,39 @@
+   <svg
+              height="120"
+              viewBox="0 0 160 160"
+              width="120"
+              class="ChainLogo_logo__hCA83 undefined ignore-global-styles"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              style="background: rgb(0, 82, 255)"
+            >
+              <g clip-path="url(#a)">
+                <mask
+                  id="b"
+                  maskUnits="userSpaceOnUse"
+                  x="38"
+                  y="38"
+                  width="84"
+                  height="84"
+                >
+                  <path d="M122 38H38v84h84V38Z" fill="#fff"></path>
+                </mask>
+                <g mask="url(#b)">
+                  <path
+                    fill-rule="evenodd"
+                    clip-rule="evenodd"
+                    d="M79.917 122C103.16 122 122 103.196 122 80s-18.841-42-42.083-42C58.2 38 40.323 54.42 38.073 75.5h55.37v8.25H38C39.9 105.189 57.942 122 79.917 122Z"
+                    fill="#fff"
+                  ></path>
+                </g>
+              </g>
+              <defs>
+                <clipPath id="a">
+                  <path
+                    fill="#fff"
+                    transform="translate(38 38)"
+                    d="M0 0h84v84H0z"
+                  ></path>
+                </clipPath>
+              </defs>
+            </svg>
